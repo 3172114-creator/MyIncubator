@@ -1,26 +1,18 @@
 
-name: Build APK
+name: Build
 on: [push]
 jobs:
-  build:
+  main:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.9
-      - name: Install Buildozer
+      - name: Build
         run: |
-          pip install buildozer cython
-          sudo apt-get install -y libffi-dev gzip zip unzip
-      - name: Build APK
-        run: |
-          buildozer init
-          sed -i 's/package.name = myapp/package.name = custom_app/' buildozer.spec
+          pip install buildozer cython kivy
+          sudo apt install -y libffi-dev gzip zip unzip
+          [ -f buildozer.spec ] || buildozer init
           yes | buildozer android debug
-      - name: Upload APK
-        uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v2
         with:
-          name: my_app_file
+          name: App
           path: bin/*.apk
