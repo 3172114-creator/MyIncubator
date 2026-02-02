@@ -3,17 +3,26 @@ name: Build
 on: [push]
 jobs:
   main:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
-      - name: Install
-        run: pip install buildozer cython kivy
-      - name: Build
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install Tools
+        run: |
+          pip install --upgrade pip
+          pip install buildozer cython kivy
+          sudo apt update
+          sudo apt install -y libffi-dev gzip zip unzip libtool autoconf cmake
+      - name: Fast Build
         run: |
           [ -f buildozer.spec ] || buildozer init
+          sed -i 's/package.name = myapp/package.name = mycalc/' buildozer.spec
           sed -i 's/# android.accept_sdk_license = False/android.accept_sdk_license = True/' buildozer.spec
-          yes | buildozer android debug
+          buildozer android debug || echo "Retry"
       - uses: actions/upload-artifact@v4
         with:
-          name: MyCalculator
+          name: App
           path: bin/*.apk
