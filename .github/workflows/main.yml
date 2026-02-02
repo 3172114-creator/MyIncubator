@@ -6,14 +6,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install
-        run: pip install buildozer cython kivy
-      - name: Build with Licenses
+      - name: Build
         run: |
+          pip install buildozer cython kivy
           buildozer init
           sed -i 's/# android.accept_sdk_license = False/android.accept_sdk_license = True/' buildozer.spec
-          yes | buildozer android debug
+          buildozer android debug
       - uses: actions/upload-artifact@v4
         with:
-          name: Winner-APK
+          name: App
           path: bin/*.apk
