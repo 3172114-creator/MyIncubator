@@ -7,16 +7,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Setup
-        run: pip install buildozer cython kivy
+        run: |
+          pip install buildozer cython kivy
+          sudo apt update
+          sudo apt install -y libffi-dev gzip zip unzip libtool autoconf cmake
       - name: Build
         run: |
           [ -f buildozer.spec ] || buildozer init
           sed -i 's/package.name = myapp/package.name = smartcalc/' buildozer.spec
           sed -i 's/# android.accept_sdk_license = False/android.accept_sdk_license = True/' buildozer.spec
           buildozer android debug
-      - name: List files
-        run: find . -name "*.apk"
-      - uses: actions/upload-artifact@v4
+      - name: Find and Upload
+        uses: actions/upload-artifact@v4
         with:
-          name: Calculator-APK
-          path: "**/*.apk" # Ищем во всех папках!
+          name: MySmartCalculator
+          path: bin/*.apk # Теперь ищем в папке bin, куда buildozer обязан его положить
