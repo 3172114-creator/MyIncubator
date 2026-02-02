@@ -3,22 +3,19 @@ name: Build
 on: [push]
 jobs:
   main:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Setup
-        run: |
-          pip install buildozer cython kivy
-          sudo apt update
-          sudo apt install -y libffi-dev gzip zip unzip libtool autoconf cmake
-      - name: Build
+      - name: Install
+        run: pip install buildozer cython kivy
+      - name: Build APK
         run: |
           [ -f buildozer.spec ] || buildozer init
-          sed -i 's/package.name = myapp/package.name = smartcalc/' buildozer.spec
           sed -i 's/# android.accept_sdk_license = False/android.accept_sdk_license = True/' buildozer.spec
           buildozer android debug
-      - name: Find and Upload
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: MySmartCalculator
-          path: bin/*.apk # Теперь ищем в папке bin, куда buildozer обязан его положить
+          name: MyFirstApp
+          path: bin/*.apk
+          if-no-files-found: error
